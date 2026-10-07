@@ -154,25 +154,6 @@ Top-K Documentation
 Coder Agent
 ```
 
-## 🛡️ Security Validation
-
-CodePilot performs a lightweight static security scan before execution.
-
-The scanner checks for potentially dangerous patterns including:
-
-```text
-os.system()
-subprocess.call()
-subprocess.Popen()
-eval()
-exec()
-__import__()
-shutil.rmtree()
-rm -rf
-```
-
-> **Security disclaimer:** The current scanner is a lightweight pattern-based defense, not a complete security sandbox. Production deployment should use container or microVM isolation, resource limits, network controls, and filesystem restrictions.
-
 ## 🧪 Automated Testing
 
 The Tester Agent generates pytest tests for the generated solution.
