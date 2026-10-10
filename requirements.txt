@@ -1,0 +1,17 @@
+﻿# AutoDev-Frontier Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core agent framework
+langgraph==1.2.11
+langchain-core==1.5.5
+
+# LLM provider
+langchain-google-genai==4.3.4
+google-genai==2.18.1
+google-generativeai==0.8.6
+
+# Vector database (RAG / Semantic Memory)
+pinecone==9.1.0
+
+# Environment management
+python-dotenv==1.2.2
