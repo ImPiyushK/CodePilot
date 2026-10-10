@@ -1,0 +1,839 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoDev</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #09090b;
+            color: #e4e4e7;
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            border-bottom: 1px solid #1c1c22;
+            flex-shrink: 0;
+        }
+
+        .topbar .dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 16px;
+        }
+
+        .topbar .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-r {
+            background: #ef4444;
+        }
+
+        .dot-y {
+            background: #eab308;
+        }
+
+        .dot-g {
+            background: #22c55e;
+        }
+
+        .topbar h1 {
+            font-size: 13px;
+            font-weight: 400;
+            color: #52525b;
+            letter-spacing: 0.5px;
+        }
+
+        .topbar .ver {
+            margin-left: auto;
+            font-size: 11px;
+            color: #22c55e;
+            opacity: 0.6;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-height: 0;
+        }
+
+        .main::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .main::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+
+        /* Task Display */
+        .task-line {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #a1a1aa;
+            flex-shrink: 0;
+        }
+
+        .task-line span {
+            color: #22c55e;
+        }
+
+        /* Progress Area */
+        .progress-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 28px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #111113;
+            border: 1px solid #1c1c22;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Pie Chart */
+        .pie-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            flex-shrink: 0;
+        }
+
+        .pie-svg {
+            width: 130px;
+            height: 130px;
+            transform: rotate(-90deg);
+        }
+
+        .pie-bg {
+            fill: none;
+            stroke: #1c1c22;
+            stroke-width: 10;
+        }
+
+        .pie-slice {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: butt;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .pie-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .pie-pct {
+            font-size: 26px;
+            font-weight: 700;
+            color: #22c55e;
+            line-height: 1;
+        }
+
+        .pie-label {
+            font-size: 10px;
+            color: #52525b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Info panel */
+        .progress-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .current-activity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #a1a1aa;
+            min-height: 24px;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #27272a;
+            border-top-color: #22c55e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .subtask-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 11px;
+            color: #3f3f46;
+            line-height: 1.4;
+        }
+
+        .subtask-item.active {
+            color: #a1a1aa;
+        }
+
+        .subtask-item.done {
+            color: #52525b;
+        }
+
+        .st-icon {
+            flex-shrink: 0;
+            width: 14px;
+            margin-top: 1px;
+        }
+
+        .st-icon-wait {
+            color: #27272a;
+        }
+
+        .st-icon-done {
+            color: #22c55e;
+        }
+
+        .st-icon-active {
+            color: #eab308;
+        }
+
+        .st-text {
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            animation: fadeIn 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #27272a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .result-header.pass {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .result-header.fail {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* Copy button */
+        .copy-btn {
+            background: #27272a;
+            color: #a1a1aa;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn:hover {
+            background: #3f3f46;
+            color: #e4e4e7;
+        }
+
+        .copy-btn.copied {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        /* Scrollable Code */
+        .result-code {
+            padding: 16px 20px;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #a1a1aa;
+            white-space: pre;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 360px;
+        }
+
+        .result-code::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .result-code::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .result-code::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+
+        .result-error {
+            padding: 16px 20px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #ef4444;
+            white-space: pre-wrap;
+            opacity: 0.8;
+        }
+
+        /* Stats Bar */
+        .stats {
+            display: flex;
+            gap: 20px;
+            padding: 12px 16px;
+            background: #111113;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.4s ease;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #52525b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #71717a;
+        }
+
+        /* Welcome */
+        .welcome {
+            color: #27272a;
+            margin-bottom: 24px;
+            font-size: 12px;
+            line-height: 1.6;
+            flex-shrink: 0;
+        }
+
+        .welcome .brand {
+            color: #22c55e;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome .sub {
+            color: #3f3f46;
+        }
+
+        /* Input Bar */
+        .input-bar {
+            border-top: 1px solid #1c1c22;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            background: #09090b;
+        }
+
+        .prompt {
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .input-bar textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e4e4e7;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            caret-color: #22c55e;
+            resize: none;
+            overflow-y: auto;
+            line-height: 1.5;
+            height: 24px;
+            max-height: 120px;
+            padding-top: 2px;
+        }
+
+        .input-bar textarea::placeholder {
+            color: #3f3f46;
+        }
+
+        .input-bar textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .input-bar textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .input-bar textarea::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 2px;
+        }
+
+        .input-bar button {
+            background: #22c55e;
+            color: #09090b;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .input-bar button:hover {
+            opacity: 0.85;
+        }
+
+        .input-bar #stopBtn {
+            margin-left: 8px;
+        }
+
+        .input-bar button:disabled {
+            background: #27272a;
+            color: #52525b;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="dots">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+        </div>
+        <h1>AutoDev</h1>
+        <span class="ver">v1.0</span>
+    </div>
+
+    <div class="main" id="main">
+        <div class="welcome" id="welcome">
+            <div class="brand">AutoDev</div>
+            <div class="sub">Autonomous coding agent. Describe a task and watch it build.</div>
+            <div class="sub" style="margin-top:4px; color:#27272a;">LangGraph &middot; Gemini 3.x &middot; Pinecone RAG
+                &middot; Security Scanner</div>
+        </div>
+    </div>
+
+    <div class="input-bar">
+        <span class="prompt">$</span>
+        <textarea id="taskInput" placeholder="Describe your coding task..." autofocus></textarea>
+        <button id="runBtn" onclick="runTask()">RUN</button>
+        <button id="stopBtn" onclick="stopTask()" disabled
+            style="background:#ef4444; color:#fff; display:none;">STOP</button>
+    </div>
+
+    <script>
+        const main = document.getElementById("main");
+        const input = document.getElementById("taskInput");
+        const btn = document.getElementById("runBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        let currentSource = null;
+
+        // Auto-resize textarea
+        input.addEventListener("input", function () {
+            this.style.height = "24px";
+            this.style.height = (this.scrollHeight) + "px";
+        });
+
+        // Enter to submit (Shift+Enter for newline)
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (!btn.disabled) runTask();
+            }
+        });
+
+        const PIE_RADIUS = 50;
+        const PIE_CIRC = 2 * Math.PI * PIE_RADIUS;
+
+        // State
+        let totalSteps = 0;   // subtasks * 4 agents
+        let doneSteps = 0;    // incremented on each agent_step event
+        let subtaskNames = [];
+        let completedSubtasks = 0;
+        let progressAreaEl = null;
+        let activityEl = null;
+        let subtaskListEl = null;
+
+        function createRun(task) {
+            const w = document.getElementById("welcome");
+            if (w) w.remove();
+
+            // Reset
+            totalSteps = 0; doneSteps = 0;
+            subtaskNames = []; completedSubtasks = 0;
+            progressAreaEl = null; activityEl = null; subtaskListEl = null;
+
+            const tl = document.createElement("div");
+            tl.className = "task-line";
+            tl.innerHTML = `<span>$</span> ${escapeHtml(task)}`;
+            main.appendChild(tl);
+
+            progressAreaEl = document.createElement("div");
+            progressAreaEl.className = "progress-area";
+            progressAreaEl.innerHTML = `
+            <div class="pie-container">
+                <svg class="pie-svg" viewBox="0 0 120 120">
+                    <circle class="pie-bg" cx="60" cy="60" r="${PIE_RADIUS}" />
+                    <circle class="pie-slice" id="pieSlice" cx="60" cy="60" r="${PIE_RADIUS}"
+                        stroke="#86efac"
+                        stroke-dasharray="0 ${PIE_CIRC}" />
+                </svg>
+                <div class="pie-center-text">
+                    <div class="pie-pct" id="piePct">0%</div>
+                    <div class="pie-label">done</div>
+                </div>
+            </div>
+            <div class="progress-info">
+                <div class="current-activity" id="currentActivity">
+                    <div class="spinner"></div>
+                    <span>Planning subtasks...</span>
+                </div>
+                <div class="subtask-list" id="subtaskList"></div>
+            </div>
+        `;
+            main.appendChild(progressAreaEl);
+
+            activityEl = document.getElementById("currentActivity");
+            subtaskListEl = document.getElementById("subtaskList");
+            scrollBottom();
+        }
+
+        function updatePie() {
+            if (totalSteps === 0) return;
+            const pct = Math.min(100, Math.round((doneSteps / totalSteps) * 100));
+            const filled = (doneSteps / totalSteps) * PIE_CIRC;
+
+            const slice = document.getElementById("pieSlice");
+            const pctEl = document.getElementById("piePct");
+            if (!slice || !pctEl) return;
+
+            slice.setAttribute("stroke-dasharray", `${filled} ${PIE_CIRC}`);
+            pctEl.textContent = pct + "%";
+
+            // Color: pale green → bright green as we progress
+            if (pct >= 100) slice.setAttribute("stroke", "#22c55e");
+            else if (pct >= 66) slice.setAttribute("stroke", "#4ade80");
+            else if (pct >= 33) slice.setAttribute("stroke", "#86efac");
+            else slice.setAttribute("stroke", "#bbf7d0");
+        }
+
+        function setActivity(text, done = false) {
+            if (!activityEl) return;
+            if (done) {
+                activityEl.innerHTML = `<span style="color:#22c55e;">&#x2713;</span> <span style="color:#52525b;">${escapeHtml(text)}</span>`;
+            } else {
+                activityEl.innerHTML = `<div class="spinner"></div><span>${escapeHtml(text)}</span>`;
+            }
+        }
+
+        function buildSubtaskList() {
+            if (!subtaskListEl) return;
+            subtaskListEl.innerHTML = "";
+            subtaskNames.forEach((name, i) => {
+                const item = document.createElement("div");
+                let cls = "subtask-item";
+                let icon = "";
+
+                if (i < completedSubtasks) {
+                    cls += " done";
+                    icon = `<span class="st-icon-done">&#x2713;</span>`;
+                } else if (i === completedSubtasks) {
+                    cls += " active";
+                    icon = `<span class="st-icon-active">&#x25CF;</span>`;
+                } else {
+                    icon = `<span class="st-icon-wait">&#x25CB;</span>`;
+                }
+
+                item.className = cls;
+                item.innerHTML = `<span class="st-icon">${icon}</span><span class="st-text">${escapeHtml(name)}</span>`;
+                subtaskListEl.appendChild(item);
+            });
+        }
+
+        function showResult(data) {
+            const card = document.createElement("div");
+            card.className = "result-card";
+
+            if (data.status === "pass") {
+                const codeText = data.code || "";
+                card.innerHTML = `
+                <div class="result-header pass">
+                    <span>Build Successful</span>
+                    <button class="copy-btn" onclick="copyCode(this, ${JSON.stringify(codeText).replace(/\//g, '\\/')})">Copy</button>
+                </div>
+                <div class="result-code">${escapeHtml(codeText)}</div>
+            `;
+            } else if (data.status === "escalate") {
+                card.innerHTML = `
+                <div class="result-header fail"><span>Escalation Required</span></div>
+                <div class="result-error">${escapeHtml(data.error || "")}</div>
+                <div class="result-code">${escapeHtml(data.code || "")}</div>
+            `;
+            } else if (data.status === "security_fail") {
+                card.innerHTML = `
+                <div class="result-header fail"><span>Security Block</span></div>
+                <div class="result-error">${escapeHtml(data.error || "")}</div>
+            `;
+            }
+
+            main.appendChild(card);
+            scrollBottom();
+        }
+
+        function copyCode(btn, code) {
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = "Copied!";
+                btn.classList.add("copied");
+                setTimeout(() => {
+                    btn.textContent = "Copy";
+                    btn.classList.remove("copied");
+                }, 2000);
+            });
+        }
+
+        function showObs(data) {
+            const totalTime = data.coder_time + data.tester_time;
+            const totalTokens = data.coder_tokens + data.tester_tokens;
+            const el = document.createElement("div");
+            el.className = "stats";
+            el.innerHTML = `
+            <div class="stat"><span class="stat-label">Coder</span><span class="stat-value">${data.coder_time}s &middot; ${data.coder_tokens} tok</span></div>
+            <div class="stat"><span class="stat-label">Tester</span><span class="stat-value">${data.tester_time}s &middot; ${data.tester_tokens} tok</span></div>
+            <div class="stat"><span class="stat-label">Total</span><span class="stat-value">${totalTime}s &middot; ${totalTokens} tok</span></div>
+            <div class="stat"><span class="stat-label">Retries</span><span class="stat-value">${data.retries}</span></div>
+        `;
+            main.appendChild(el);
+            scrollBottom();
+        }
+
+        function runTask() {
+            const task = input.value.trim();
+            if (!task) return;
+
+            createRun(task);
+            input.value = "";
+            input.style.height = "24px";
+            btn.disabled = true;
+            btn.style.display = "none";
+            stopBtn.style.display = "block";
+            stopBtn.disabled = false;
+            input.disabled = true;
+
+            currentSource = new EventSource("/run?task=" + encodeURIComponent(task));
+
+            currentSource.onmessage = (event) => {
+                const raw = event.data;
+                if (raw === "[DONE]") {
+                    currentSource.close();
+                    btn.disabled = false;
+                    btn.style.display = "block";
+                    stopBtn.style.display = "none";
+                    stopBtn.disabled = true;
+                    input.disabled = false;
+                    input.focus();
+                    setActivity("All done!", true);
+                    return;
+                }
+
+                try {
+                    const data = JSON.parse(raw);
+
+                    if (data.type === "plan_ready") {
+                        // We know total steps: subtasks * 4 agents each
+                        subtaskNames = data.names;
+                        totalSteps = data.total * 4;
+                        completedSubtasks = 0;
+                        buildSubtaskList();
+                        updatePie();
+                        setActivity(`Agent is running...`);
+
+                    } else if (data.type === "agent_step") {
+                        // Each agent completion increments progress, never decrements
+                        doneSteps = Math.min(doneSteps + 1, totalSteps);
+                        updatePie();
+
+                    } else if (data.type === "subtask_done") {
+                        completedSubtasks++;
+                        buildSubtaskList();
+                        if (completedSubtasks < subtaskNames.length) {
+                            setActivity(`Agent is running... `);
+                        } else {
+                            setActivity("Finalizing...", false);
+                        }
+
+                    } else if (data.type === "phase") {
+                        // Update activity text for key transitions
+                        if (data.phase === "planner" && data.status === "running") {
+                            setActivity("Planning subtasks...");
+                        } else if (data.phase === "coder" && data.status === "running") {
+                            const idx = completedSubtasks;
+                            const name = subtaskNames[idx] || data.detail || "code";
+                            setActivity(`Agent is running...`);
+                        } else if (data.phase === "tester" && data.status === "running") {
+                            setActivity("Writing tests...");
+                        } else if (data.phase === "scanner" && data.status === "running") {
+                            setActivity("Security scan...");
+                        } else if (data.phase === "executor" && data.status === "running") {
+                            setActivity("Running tests...");
+                        } else if (data.phase === "executor" && data.status === "fail") {
+                            setActivity("Tests failed, retrying...");
+                        }
+
+                    } else if (data.type === "result") {
+                        showResult(data);
+
+                    } else if (data.type === "obs") {
+                        showObs(data);
+
+                    } else if (data.type === "error") {
+                        const el = document.createElement("div");
+                        el.style.cssText = "color:#ef4444; padding:12px 0; font-size:13px; flex-shrink:0;";
+                        el.textContent = "Error: " + data.message;
+                        main.appendChild(el);
+                    }
+                } catch (e) { }
+                scrollBottom();
+            };
+
+            currentSource.onerror = () => {
+                currentSource.close();
+                btn.disabled = false;
+                btn.style.display = "block";
+                stopBtn.style.display = "none";
+                stopBtn.disabled = true;
+                input.disabled = false;
+            };
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement("div");
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function scrollBottom() {
+            main.scrollTop = main.scrollHeight;
+        }
+
+
+        function stopTask() {
+            if (currentSource) {
+                currentSource.close();
+            }
+            fetch("/stop", { method: "POST" });
+
+            btn.disabled = false;
+            btn.style.display = "block";
+            stopBtn.style.display = "none";
+            stopBtn.disabled = true;
+            input.disabled = false;
+            input.focus();
+
+            setActivity("Run Cancelled", false);
+            if (activityEl) activityEl.style.color = "#ef4444";
+        }
+
+        window.addEventListener('beforeunload', () => {
+            navigator.sendBeacon('/stop');
+        });
+    </script>
+</body>
+
+
+</html>
