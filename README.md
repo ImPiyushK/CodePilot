@@ -421,28 +421,6 @@ Verify
 ```
 
 > **Don't trust generated code—generate, verify, observe, and improve it.**
-
-## 📈 Future Work
-
-- Repository-level code understanding and multi-file modification
-- Docker/microVM-based execution sandbox
-- Independent code review agent
-- Benchmarking using Pass@1 / Pass@k, success rate, retries, latency, and token usage
-- Persistent repository-specific agent memory
-- Improved AST-based security analysis
-
-## ⚠️ Limitations
-
-CodePilot is currently an **experimental research/engineering prototype**.
-
-- Primarily focused on Python programming tasks.
-- Generated code is executed using a local subprocess.
-- Security scanning is pattern-based.
-- RAG quality depends on indexed documentation.
-- Generated tests may contain incorrect assumptions.
-- Full repository-level modification is not currently implemented.
-- Performance depends on the underlying LLM.
-
 ## 🎓 Project Highlights
 
 CodePilot demonstrates practical implementation of:
@@ -461,12 +439,6 @@ CodePilot demonstrates practical implementation of:
 - LLM observability
 - Human-in-the-loop escalation
 
-## 👨‍💻 Author
-
-**Piyush Kandwal**
-
-M.Tech — Computer Science & Engineering  
-IIIT-Delhi
 
 ## 📄 License
 
