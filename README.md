@@ -2,7 +2,7 @@
 
 > A multi-agent AI system that plans, generates, tests, validates, and iteratively improves Python code using **LangGraph, Gemini, RAG, and automated execution**.
 
-## 🚀 Overview
+## Overview
 
 **CodePilot** is an autonomous software engineering agent designed to transform natural-language programming tasks into tested and executable Python solutions.
 
