@@ -289,8 +289,6 @@ PINECONE_API_KEY=your_pinecone_api_key
 PINECONE_INDEX_HOST=your_pinecone_index_host
 ```
 
-> **Do not commit `.env` or API keys to GitHub.**
-
 ## 📚 Build the RAG Index
 
 Before using documentation retrieval:
